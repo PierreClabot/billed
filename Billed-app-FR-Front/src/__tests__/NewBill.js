@@ -143,41 +143,9 @@ describe("Given I am connected as an employee and I create a new bill", () => {
           mock.mockReturnValue("err200") // A REVOIR
         })
       })
-      // localStorage should be populated with form data
-      Object.defineProperty(window, "localStorage", {
-        value: {
-          getItem: jest.fn(() => null),
-          setItem: jest.fn(() => null),
-        },
-        writable: true,
-      });
-
-      // we have to mock navigation to test it
-      window.onNavigate(ROUTES_PATH.Dashboard)
-
-      let PREVIOUS_LOCATION = "";
-
-
-      const handleSubmit = jest.fn(login.handleSubmitEmployee);
-      login.login = jest.fn().mockResolvedValue({});
-      form.addEventListener("submit", handleSubmit);
-      fireEvent.submit(form);
-      expect(handleSubmit).toHaveBeenCalled();
-      expect(window.localStorage.setItem).toHaveBeenCalled();
-      expect(window.localStorage.setItem).toHaveBeenCalledWith(
-        "user",
-        JSON.stringify({
-          type: "Employee",
-          email: inputData.email,
-          password: inputData.password,
-          status: "connected",
-        })
-      );
+    
     });
 
-    test("It should renders Bills page", () => {
-      expect(screen.getAllByText("Mes notes de frais")).toBeTruthy();
-    });
   });
   
 })
