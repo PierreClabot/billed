@@ -29,17 +29,35 @@ describe("Given I am connected as an employee and I create a new bill", () => {
       router()
       window.onNavigate(ROUTES_PATH.NewBill)
       
-      // const html = NewBillUI()
-      // document.body.innerHTML = html
-
-      // await waitFor(()=>{
-      //   screen.getByTestId('icon-mail')
-      // }) 
       const iconeNewBill = await screen.getByTestId('icon-mail')
       expect(iconeNewBill.classList.contains("active-icon")).toBeTruthy();
 
     })
+
+    test("Check title page", async () => {
+
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }))
+
+      const root = document.createElement("div")
+      root.setAttribute("id", "root")
+      document.body.append(root)
+      router()
+      window.onNavigate(ROUTES_PATH.NewBill)
+
+      const title = document.querySelector(".content-title").textContent.trim()
+      expect(title).toBe("Envoyer une note de frais");
+
+    })
+
+
+
+
   })
+
+  
 
   describe("When I do not fill fields and I click on newBill button", () => {
     test("Then It should renders newBill page", () => {
@@ -76,7 +94,53 @@ describe("Given I am connected as an employee and I create a new bill", () => {
     })
   })
 
+
+
   describe("When I do fill fields and I click on newBill button", () => {
+    // extension image
+    // new File
+    test("Extension image",()=>{
+      document.body.innerHTML = NewBillUI();
+      
+      
+      
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }))
+
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+      const store = null
+      const newBillPage = new NewBill({
+        document, onNavigate, store, localStorage: window.localStorage
+      })
+
+      const file = new File([""], "upload.jpg");
+      const arrExtension = ["png","jpg","jpeg"]
+    
+      const fileName = file.name.split(".");
+      const fileExtension = fileName[1];
+      expect(arrExtension).toContain(fileExtension)
+      // ajouter l'input et l'event appeler handleChangeFile
+
+      //const inputUpload = screen.getByTestId("file")
+      // inputUpload.addEventListener("change",()=>{
+      //   var extension = inputUpload.value;
+      //   expect(arrExtension).toContain(extension)
+      // })     
+
+
+      // const formNewBill = screen.getByTestId("form-new-bill");
+      // const handleSubmit = jest.fn(newBillPage.handleSubmit);
+      // newBillPage.updateBill = jest.fn();
+			// formNewBill.addEventListener("submit", handleSubmit);
+			// fireEvent.submit(formNewBill);
+
+      // expect(handleSubmit).toHaveBeenCalled();
+      // expect(newBillPage.updateBill).toHaveBeenCalled();
+    })
     test("Then I should be saved new bill", () => {
       document.body.innerHTML = NewBillUI();
       
@@ -98,9 +162,9 @@ describe("Given I am connected as an employee and I create a new bill", () => {
       
 
       const inputData = {
-        expenseType : "expenseType",
-        expenseName : "expenseName",
-        date : "DD/MM/YYYY",
+        expenseType : "Voyage",
+        expenseName : "Vol France",
+        date : "03/10/2022",
         amount : "348",
         vat : "70",
         pct : "20",
@@ -125,7 +189,6 @@ describe("Given I am connected as an employee and I create a new bill", () => {
 
       expect(handleSubmit).toHaveBeenCalled();
       expect(newBillPage.updateBill).toHaveBeenCalled();
-
     
     });
 
@@ -133,11 +196,10 @@ describe("Given I am connected as an employee and I create a new bill", () => {
   /********************************************************************************************************************* */
 })
 
-describe("Given I am a user connected as Admin", () => {
+describe("Given I am a user connected as Employee", () => {
   
+  // forEach
   describe("When an error occurs on API", () => {
-    
-  
 
     test("fetches bills from an API and fails with 500 message error", async () => {
       
@@ -163,14 +225,13 @@ describe("Given I am a user connected as Admin", () => {
 
       mockStore.bills = jest.fn().mockImplementation(() => {
         return {
-          list : () =>  { // ?
+          update : () => Promise.reject(new Error('Erreur 500')),
+          list : () =>  { 
             return Promise.reject(new Error("Erreur 500"))
           }
         }})
 
-      // mockStore.bills = jest.fn().mockImplementation(() => {
-      //   return Promise.reject(new Error("Erreur 500"))
-      // })
+
 
         const newBillPage = new NewBill({
           document, onNavigate, store:mockStore, localStorage: window.localStorage
@@ -180,27 +241,13 @@ describe("Given I am a user connected as Admin", () => {
         const handleSubmit = jest.fn((e)=>newBillPage.handleSubmit(e));
         formNewBill.addEventListener("submit",handleSubmit)
         fireEvent.submit(formNewBill)
-      window.onNavigate(ROUTES_PATH.NewBill)
+
       await new Promise(process.nextTick);
-      expect(consoleErrorSpy).toBeCalledWith(new Error("Erreur 500"))  
-      //const message = await screen.getByText(/Erreur 500/)
-      //expect(message).toBeTruthy()
+      expect(consoleErrorSpy).toBeCalledWith(new Error("Erreur 500"))
+
     })
-
-    // test("fetches messages from an API and fails with 500 message error", async () => {
-
-    //   mockStore.bills.mockImplementationOnce(() => {
-    //     return {
-    //       list : () =>  {
-    //         return Promise.reject(new Error("Erreur 500"))
-    //       }
-    //     }})
-
-    //   window.onNavigate(ROUTES_PATH.Dashboard)
-    //   await new Promise(process.nextTick);
-    //   const message = await screen.getByText(/Erreur 500/)
-    //   expect(message).toBeTruthy()
-    // })
   })
+
+
 
 })
