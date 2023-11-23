@@ -14,6 +14,8 @@ import mockStore from "../__mocks__/store"
 
 import router from "../app/Router.js";
 
+jest.mock("../app/store", () => mockStore)
+
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
     test("Then bill icon in vertical layout should be highlighted", async () => {
@@ -87,6 +89,8 @@ describe("Given I am connected as an employee", () => {
   // erreur 404 -> données n'existent pas
   describe("When an error occurs on API", () => {
 
+    //jest.mock("../app/store", () => mockStore)
+
     test("fetches bills from an API and fails with 500 message error", async () => {
       
       jest.spyOn(mockStore, "bills")
@@ -116,15 +120,53 @@ describe("Given I am connected as an employee", () => {
         }})
 
         window.onNavigate(ROUTES_PATH.Bills)
-        const consoleErrorSpy = jest.spyOn(console,"error")
+        //const consoleErrorSpy = jest.spyOn(console,"error")
         await new Promise(process.nextTick);
-        expect(consoleErrorSpy).toBeCalledWith(new Error("Erreur 500"))
-        //const message = await screen.getByText(/Erreur 500/)
-        //expect(message).toBeTruthy()
+        //expect(consoleErrorSpy).toBeCalledWith(new Error("Erreur 500"))
+        const message = await screen.getByText(/Erreur 500/)
+        expect(message).toBeTruthy()
     })
+
+    test("fetches bills from an API and fails with 404 message error", async () => {
+      
+      jest.spyOn(mockStore, "bills")
+      Object.defineProperty(
+          window,
+          'localStorage',
+          { value: localStorageMock }
+      )
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee',
+        email: "a@a"
+      }))
+      const root = document.createElement("div")
+      root.setAttribute("id", "root")
+      document.body.appendChild(root)
+      router()
+
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+
+      mockStore.bills.mockImplementationOnce(() => {
+        return {
+          list : () =>  {
+            return Promise.reject(new Error("Erreur 404"))
+          }
+        }})
+
+        window.onNavigate(ROUTES_PATH.Bills)
+
+        await new Promise(process.nextTick);
+
+        const message = await screen.getByText(/Erreur 404/)
+        expect(message).toBeTruthy()
+    })
+    
+
+
   })
 
-  // erreur 404
   // erreur 200  -> OK
 
 

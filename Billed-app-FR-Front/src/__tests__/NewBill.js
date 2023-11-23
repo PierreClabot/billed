@@ -12,7 +12,7 @@ import { ROUTES, ROUTES_PATH } from "../constants/routes"
 import mockStore from "../__mocks__/store"
 
 
-describe("Given I am connected as an employee and I create a new bill", () => {
+describe("Given I am connected as an employee", () => {
   describe("When I create a new bill",()=>{
 
     test("Then bill icon in vertical layout should be highlighted", async () => {
@@ -34,7 +34,7 @@ describe("Given I am connected as an employee and I create a new bill", () => {
 
     })
 
-    test("Check title page", async () => {
+    test("page title should be 'Envoyez une note de frais'", async () => {
 
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem('user', JSON.stringify({
@@ -100,10 +100,8 @@ describe("Given I am connected as an employee and I create a new bill", () => {
     // extension image
     // new File
     test("Extension image",()=>{
+      
       document.body.innerHTML = NewBillUI();
-      
-      
-      
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem('user', JSON.stringify({
         type: 'Employee'
@@ -141,6 +139,37 @@ describe("Given I am connected as an employee and I create a new bill", () => {
       // expect(handleSubmit).toHaveBeenCalled();
       // expect(newBillPage.updateBill).toHaveBeenCalled();
     })
+    test("Then i change file",()=>{
+      document.body.innerHTML = NewBillUI();
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }))
+
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+      const store = null
+      const newBillPage = new NewBill({
+        document, onNavigate, store, localStorage: window.localStorage
+      })
+
+      const file = new File([""], "upload.jpg",{type:"image/jpeg"});
+
+      // const formNewBill = screen.getByTestId("form-new-bill");
+      const inputFile = screen.getByTestId("file");
+      // inputFile.value = file
+
+      const handleChangeFile = jest.fn(newBillPage.handleChangeFile);
+      
+			inputFile.addEventListener("change", handleChangeFile);
+			fireEvent.change(inputFile,{target:{files:[file]} });
+
+      // expect(handleSubmit).toHaveBeenCalled();
+      // expect(newBillPage.updateBill).toHaveBeenCalled();
+
+    })
+    // Ajouter un test concernant la vérification du fichier image expect handleChangeFile
     test("Then I should be saved new bill", () => {
       document.body.innerHTML = NewBillUI();
       
