@@ -165,7 +165,7 @@ describe("Given I am connected as an employee", () => {
 			inputFile.addEventListener("change", handleChangeFile);
 			fireEvent.change(inputFile,{target:{files:[file]} });
 
-      // expect(handleSubmit).toHaveBeenCalled();
+      expect(handleChangeFile).toHaveBeenCalled();
       // expect(newBillPage.updateBill).toHaveBeenCalled();
 
     })
